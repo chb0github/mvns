@@ -1,0 +1,29 @@
+{
+  "name": "mvns",
+  "version": "1.0.0",
+  "description": "Searches maven repositories (default is central) for packages",
+  "main": "mvns",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chb0github/mvns.git"
+  },
+  "keywords": [
+    "maven",
+    "node"
+  ],
+  "author": "Christian Bongiorno",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/chb0github/mvns/issues"
+  },
+  "homepage": "https://github.com/chb0github/mvns#readme",
+
+  "dependencies": {
+  },
+  "bin": {
+    "mvns": "mvns"
+  }
+}

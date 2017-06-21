@@ -1,19 +1,23 @@
 #!/usr/bin/env node
 const http = require('http')
 const querystring = require('querystring');
+const defaultFormat = d => `release data: ${new Date(d.timestamp).toLocaleDateString()} ${d.id}:${d.latestVersion}`
+
+const formatter = process.argv[2].match('--.*') ? require(`${process.cwd()}/mappers/${process.argv[2].slice(2)}`) : defaultFormat
 
 const options = {
   hostname: 'search.maven.org',
   path: `/solrsearch/select?${querystring.stringify({
     row: 20,
     wt: 'json',
-    q: process.argv[2]
+    q: process.argv[2].match('--.*') ? process.argv[3] : process.argv[2]
   })}`,
   headers: {
     'Accept': 'application/json'
   }
 };
-const promise = new Promise((good,bad) => {
+
+new Promise((good,bad) => {
   const req = http.request(options,  (res) => {
     let data = '';
     res.setEncoding('utf8');
@@ -37,11 +41,10 @@ const promise = new Promise((good,bad) => {
   req.on('error', bad);
 
   req.end();
-});
-promise.then(data => {
-  console.log(data.response.docs.map(d => `release data: ${new Date(d.timestamp).toLocaleDateString()} ${d.id}:${d.latestVersion}`))
+}).then(data => {
+  data.response.docs.map(formatter).forEach(s => console.log(s))
   process.exit(0)
 }).catch(e => {
-  console.log(e)
+  console.error(e)
   process.exit(-1)
 })

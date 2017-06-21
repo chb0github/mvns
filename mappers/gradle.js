@@ -1,0 +1,1 @@
+module.exports = (hit) => `${hit.id}:${hit.latestVersion}`
