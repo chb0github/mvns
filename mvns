@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+const http = require('http')
+const querystring = require('querystring');
+
+const options = {
+  hostname: 'search.maven.org',
+  path: `/solrsearch/select?${querystring.stringify({
+    row: 20,
+    wt: 'json',
+    q: process.argv[2]
+  })}`,
+  headers: {
+    'Accept': 'application/json'
+  }
+};
+const promise = new Promise((good,bad) => {
+  const req = http.request(options,  (res) => {
+    let data = '';
+    res.setEncoding('utf8');
+
+    res.on('data', d => data += d);
+
+    res.on('end', () => {
+      if(!res.headers['content-type'].match('.*json'))
+        return bad(JSON.stringify({
+          req: req.headers,
+          body: data
+        },null,4))
+
+      if(res.statusCode >= 400)
+        return bad(JSON.stringify(JSON.parse(data,null,4)))
+
+      return good(JSON.parse(data,null,4))
+    });
+  });
+
+  req.on('error', bad);
+
+  req.end();
+});
+promise.then(data => {
+  console.log(data.response.docs.map(d => `release data: ${new Date(d.timestamp).toLocaleDateString()} ${d.id}:${d.latestVersion}`))
+  process.exit(0)
+}).catch(e => {
+  console.log(e)
+  process.exit(-1)
+})
